@@ -49,3 +49,8 @@ if uploaded_files:
         columns = st.multiselect(f"Choose columns for {file.name}", df.columns, default=df.columns)
         df = df[columns]
 
+        # Data Visualization
+        st.subheader("Data Visualization")
+        if st.checkbox(f"Show Visualization for {file.name}"):
+            st.bar_chart(df.select_dtypes(include=['number']).iloc[:,:2])
+
