@@ -54,3 +54,25 @@ if uploaded_files:
         if st.checkbox(f"Show Visualization for {file.name}"):
             st.bar_chart(df.select_dtypes(include=['number']).iloc[:,:2])
 
+        # File conversion
+        st.subheader("Conversion Options")
+        conversion_type = st.radio(f"Convert {file.name} to:", ["CSV", "Excel"], key=file.name)
+        if st.button(f"Convert {file.name}"):
+            buffer = BytesIO()
+            if conversion_type == 'CSV':
+                df.to_csv(buffer, index=False)
+                file_name = file.name.replace(file_ext, ".csv")
+                mime_type = "text/csv"
+            if conversion_type == 'Excel':
+                df.to_excel(buffer, index=False)
+                file_name = file.name.replace(file_ext, ".xlsx")
+                mime_type = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            buffer.seek(0)
+
+            # Download
+            st.download_button(
+                label=f"Download {file.name} as {conversion_type}",
+                data=buffer,
+                file_name=file_name,
+                mime=mime_type
+            )
