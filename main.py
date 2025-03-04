@@ -109,14 +109,41 @@ elif page == "Upload & Process":
                 st.error(f"❌ Unsupported file type: {file_ext}")
                 continue
 
-            st.markdown(f'<div class="section-header">📂 File: {file.name}</div>', unsafe_allow_html=True)
+            st.markdown(f"## 📂 File: `{file.name}`")
 
-            st.write("🔎 **Preview**")
+            # 📊 Data Quality Report Section
+            st.markdown("### 📋 Data Quality Report")
+
+            # Basic Info
+            st.write(f"**Total Rows:** {df.shape[0]}")
+            st.write(f"**Total Columns:** {df.shape[1]}")
+
+            # Missing Values Report
+            missing_values = df.isnull().sum()
+            st.write("**Missing Values Per Column:**")
+            st.dataframe(missing_values.rename("Missing Values"))
+
+            # Duplicate Rows
+            duplicate_count = df.duplicated().sum()
+            st.write(f"**Duplicate Rows:** {duplicate_count}")
+
+            # Data Types Summary
+            st.write("**Data Types Summary:**")
+            st.dataframe(df.dtypes.rename("Data Type"))
+
+            # Optional: Basic Descriptive Statistics (Numeric Columns Only)
+            if st.checkbox(f"Show Descriptive Statistics for `{file.name}`"):
+                st.write(df.describe())
+
+            st.divider()  # Optional visual divider
+
+            # 🔎 Data Preview
+            st.markdown("### 🔎 Data Preview (First 5 Rows)")
             st.dataframe(df.head())
 
-            # Data Cleaning Section
-            st.markdown('<div class="section-header">🧹 Data Cleaning Options</div>', unsafe_allow_html=True)
-            if st.checkbox(f"Enable cleaning options for **{file.name}**"):
+            # 🧹 Data Cleaning Options (You can keep your original logic here)
+            st.markdown("### 🧹 Data Cleaning Options")
+            if st.checkbox(f"Enable cleaning options for `{file.name}`"):
                 col1, col2 = st.columns(2)
 
                 with col1:
@@ -130,23 +157,23 @@ elif page == "Upload & Process":
                         df[numeric_cols] = df[numeric_cols].fillna(df[numeric_cols].mean())
                         st.success("✅ Missing values filled with column mean!")
 
-            # Column selection
-            st.markdown('<div class="section-header">📊 Column Selection</div>', unsafe_allow_html=True)
-            columns = st.multiselect(f"Choose columns to keep for **{file.name}**", df.columns, default=df.columns)
+            # Column Selection
+            st.markdown("### 📊 Column Selection")
+            columns = st.multiselect(f"Choose columns to keep for `{file.name}`", df.columns, default=df.columns)
             df = df[columns]
 
-            # Data Visualization Section
-            st.markdown('<div class="section-header">📈 Data Visualization</div>', unsafe_allow_html=True)
-            if st.checkbox(f"Show Visualization for **{file.name}**"):
+            # Data Visualization
+            st.markdown("### 📈 Data Visualization")
+            if st.checkbox(f"Show Visualization for `{file.name}`"):
                 numeric_cols = df.select_dtypes(include=['number']).columns
                 if len(numeric_cols) < 2:
                     st.warning("⚠️ Not enough numeric columns for visualization.")
                 else:
                     st.bar_chart(df[numeric_cols].iloc[:, :2])
 
-            # Conversion Section
-            st.markdown('<div class="section-header">💾 File Conversion</div>', unsafe_allow_html=True)
-            conversion_type = st.radio(f"Convert **{file.name}** to:", ["CSV", "Excel"], key=file.name)
+            # File Conversion Section
+            st.markdown("### 💾 File Conversion")
+            conversion_type = st.radio(f"Convert `{file.name}` to:", ["CSV", "Excel"], key=file.name)
 
             if st.button(f"🔄 Convert {file.name}"):
                 progress_bar = st.progress(0)
@@ -168,7 +195,7 @@ elif page == "Upload & Process":
                 st.success(f"✅ {file.name} successfully converted to {conversion_type}")
 
                 st.download_button(
-                    label=f"⬇️ Download {file.name} as {conversion_type}",
+                    label=f"⬇️ Download `{file.name}` as {conversion_type}",
                     data=buffer,
                     file_name=file_name,
                     mime=mime_type
